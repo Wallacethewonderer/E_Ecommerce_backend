@@ -13,6 +13,17 @@ router.get('/', (req, res) => {
 router.get('/:id', (req, res) => {
   // find a single product by its `id`
   // be sure to include its associated Category and Tag data
+  Product.findOne({
+    where: {id: req.params.id},
+    include: [Category, Tag]
+  })
+  .then((productsData) => {
+    if (!productsData) {
+      res.status(404).json({ message: 'No product found with that id!' });
+      return;
+    }
+    res.json(productsData);})
+  .catch((err) => res.json(err));
 });
 
 // create new product
@@ -90,7 +101,20 @@ router.put('/:id', (req, res) => {
 });
 
 router.delete('/:id', (req, res) => {
-  // delete one product by its `id` value
+  Product.destroy({
+    where: {
+      id: req.params.id,
+    },
+  })
+  .then((productsData) => {
+    if (productsData === 0) {
+      res.status(404).json({ message: 'Product not found!' });
+    } else {
+      res.json({ message: 'Product deleted!' });
+    }
+  })
+  .catch((err) => res.json(err));
 });
+
 
 module.exports = router;
